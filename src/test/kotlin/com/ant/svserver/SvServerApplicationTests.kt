@@ -1,4 +1,4 @@
-package com.ant.SVServer
+package com.ant.svserver
 
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
