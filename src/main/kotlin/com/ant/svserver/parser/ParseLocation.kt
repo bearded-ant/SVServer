@@ -11,13 +11,12 @@ class ParseLocation {
         val locationObjectList = mutableListOf<Location>()
         val parserLocation = parseLocationFromUrl()
 
-        var attackStartTime = 0
-
         for (i in 0 until parserLocation.lastIndex) {
 
             val nameLocation = getLocationName(parserLocation, i)
             val nexAttackTime = getNexAttackTime(parserLocation, i)
             val statusLocation = getStatusLocation(parserLocation, i)
+            val timeToAttack = getTimeToAttack(statusLocation)
 
             locationObjectList.add(
                 Location(
@@ -25,7 +24,7 @@ class ParseLocation {
                     nextRun = nexAttackTime,
                     status = statusLocation.status,
                     underAttackFlag = statusLocation.attackFlag,
-                    attackStartTime = attackStartTime
+                    timeToAttack = timeToAttack
                 )
             )
         }
@@ -47,11 +46,17 @@ class ParseLocation {
             .select("div[class=text-danger]")
             .text()
 
-        val statusXXX = parserLocation[i]
+        val statusResourcesDanger = parserLocation[i]
+            .select("div[class=text-danger mt-3]")
+            .text()
+
+        val statusSetOfFighters = parserLocation[i]
+            .select("div[class=mt-3]")
             .select("div[class=text-warning fw-bold]")
             .text()
 
-        val statusYYY = parserLocation[i]
+        val statusAttackIsOn = parserLocation[i]
+            .select("div[class=mt-3]")
             .select("div[class=text-success fw-bold]")
             .text()
 
@@ -64,11 +69,16 @@ class ParseLocation {
 
         return when (true) {
             statusDanger.isNotBlank() -> FlagAndString(true, statusDanger)
-            statusXXX.isNotBlank() -> FlagAndString(false, statusXXX)
-            statusYYY.isNotBlank() -> FlagAndString(false, statusYYY)
+            statusSetOfFighters.isNotBlank() -> FlagAndString(false, statusSetOfFighters)
+            statusAttackIsOn.isNotBlank() -> FlagAndString(false, statusAttackIsOn)
+            statusResourcesDanger.isNotBlank() -> FlagAndString(true, statusResourcesDanger)
             else -> FlagAndString(false, statusNormal)
         }
     }
+
+    private fun getTimeToAttack(statusString: FlagAndString) =
+        if (statusString.status.length > 27 && statusString.attackFlag) statusString.status.substring(25, 27).trim()
+            .toInt() else -1
 
     private fun getNexAttackTime(parserLocation: Elements, i: Int) = parserLocation[i]
         .selectFirst("div[class=mt-3]")?.text()

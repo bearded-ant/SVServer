@@ -28,8 +28,13 @@ class ShowTime {
 
         for (i in 0..locationObjectList.lastIndex) {
             dataHashMap.put(locationObjectList[i].name, locationObjectList[i])
-            if (locationObjectList[i].underAttackFlag)
-                sendMessage(locationObjectList[i])
+
+            if (locationObjectList[i].underAttackFlag) {
+                val minutesToAttack = locationObjectList[i].timeToAttack
+                if ((minutesToAttack in 24..25 || minutesToAttack in 9..10 || minutesToAttack in 5..6)
+                )
+                    sendMessage(locationObjectList[i])
+            }
         }
         ref.updateChildrenAsync(dataHashMap as Map<String, Any>?)
 
